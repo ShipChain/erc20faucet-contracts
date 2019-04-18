@@ -6,7 +6,7 @@ const MaxAllowance = 300000;
 module.exports = function(deployer, network, accounts) {
   let deployerPromise;
 
-  if (network === 'rinkeby') {
+  if (network.includes('rinkeby')) {
     console.log(`On Rinkeby, SHIP address is ${ShipRinkeby}`);
     deployerPromise = deployer.then(() => {
       return SHIPToken.at(ShipRinkeby);

@@ -21,11 +21,12 @@
   "homepage": "https://github.com/WeTrustPlatform/erc20faucet-contracts#readme",
   "devDependencies": {
     "ethlint": "^1.2.3",
-    "truffle-hdwallet-provider": "^1.0.6"
+    "soljitsu": "^1.0.0"
   },
   "dependencies": {
-    "truffle": "^5.0.13",
     "openzeppelin-solidity": "^2.2.0",
-    "solc": "^0.5.7"
+    "solc": "^0.5.7",
+    "truffle": "^5.0.13",
+    "truffle-hdwallet-provider-privkey": "^1.0.3"
   }
 }
