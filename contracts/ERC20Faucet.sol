@@ -14,27 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-pragma solidity ^0.4.19;
+pragma solidity ^0.5.6;
 
-import "./SafeMath.sol";
-
-contract ERC20TokenInterface {
-  function totalSupply() constant public returns (uint256 supply);
-  function balanceOf(address _owner) constant public returns (uint256 balance);
-  function transfer(address _to, uint256 _value) public returns (bool success);
-  function transferFrom(address _from, address _to, uint256 _value) public returns (bool success);
-  function approve(address _spender, uint256 _value) public returns (bool success);
-  function allowance(address _owner, address _spender) constant public returns (uint256 remaining);
-  event Transfer(address indexed from, address indexed to, uint256 value);
-  event Approval(address indexed owner, address indexed spender, uint256 value);
-}
+import {SafeMath} from "openzeppelin-solidity/contracts/math/SafeMath.sol";
+import {IERC20} from "openzeppelin-solidity/contracts/token/ERC20/IERC20.sol";
 
 contract ERC20Faucet {
   using SafeMath for uint256;
 
   uint256 public maxAllowanceInclusive;
   mapping (address => uint256) public claimedTokens;
-  ERC20TokenInterface public erc20Contract;
+  IERC20 public erc20Contract;
   bool public isPaused = false;
 
   address private mOwner;
@@ -62,7 +52,7 @@ contract ERC20Faucet {
     mReentrancyLock = false;
   }
 
-  function ERC20Faucet(ERC20TokenInterface _erc20ContractAddress, uint256 _maxAllowanceInclusive) public {
+  constructor(IERC20 _erc20ContractAddress, uint256 _maxAllowanceInclusive) public {
     mOwner = msg.sender;
     maxAllowanceInclusive = _maxAllowanceInclusive;
     erc20Contract = _erc20ContractAddress;
@@ -70,7 +60,7 @@ contract ERC20Faucet {
 
   function getTokens(uint256 amount) notPaused nonReentrant public returns (bool) {
     require(claimedTokens[msg.sender].add(amount) <= maxAllowanceInclusive);
-    require(erc20Contract.balanceOf(this) >= amount);
+    require(erc20Contract.balanceOf(address(this)) >= amount);
     
     claimedTokens[msg.sender] = claimedTokens[msg.sender].add(amount);
 
@@ -79,27 +69,27 @@ contract ERC20Faucet {
       return false;
     }
     
-    GetTokens(msg.sender, amount);
+    emit GetTokens(msg.sender, amount);
     return true;
   }
 
   function setMaxAllowance(uint256 _maxAllowanceInclusive) onlyOwner nonReentrant public {
-    SetMaxAllowance(msg.sender, _maxAllowanceInclusive, maxAllowanceInclusive);
+    emit SetMaxAllowance(msg.sender, _maxAllowanceInclusive, maxAllowanceInclusive);
     maxAllowanceInclusive = _maxAllowanceInclusive;
   }
 
   function reclaimTokens() onlyOwner nonReentrant public returns (bool) {
-    uint256 tokenBalance = erc20Contract.balanceOf(this);
+    uint256 tokenBalance = erc20Contract.balanceOf(address(this));
     if (!erc20Contract.transfer(msg.sender, tokenBalance)) {
       return false;
     }
 
-    ReclaimTokens(msg.sender, tokenBalance);
+    emit ReclaimTokens(msg.sender, tokenBalance);
     return true;
   }
 
   function setPause(bool _isPaused) onlyOwner nonReentrant public {
-    SetPause(msg.sender, _isPaused, isPaused);
+    emit SetPause(msg.sender, _isPaused, isPaused);
     isPaused = _isPaused;
   }
 }

@@ -22,5 +22,10 @@
   "devDependencies": {
     "ethlint": "^1.2.3",
     "truffle-hdwallet-provider": "^1.0.6"
+  },
+  "dependencies": {
+    "truffle": "^5.0.13",
+    "openzeppelin-solidity": "^2.2.0",
+    "solc": "^0.5.7"
   }
 }
